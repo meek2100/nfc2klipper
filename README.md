@@ -310,6 +310,14 @@ You can also add extra fields in Spoolman for saving the data from the OpenTag3D
 * [spoolman2slicer](https://github.com/bofh69/spoolman2slicer) - create filament config from Spoolman.
 * [OpenTag3d](https://opentag3d.info/) tag format.
 
+## Integrated use with Spoolman2Slicer
+
+*nfc2klipper* can be integrated directly into [spoolman2slicer](https://github.com/bofh69/spoolman2slicer) as a plugin. This allows you to run both tools in a single process.
+
+To enable it, run `spoolman2slicer` with the `--with-n2k` flag or set the `S2S_WITH_N2K=true` environment variable. The host will automatically handle the lifecycle and configuration of this agent.
+
+For more details on hardware setup requirements when running as a plugin, see [README-PLUGIN.md](README-PLUGIN.md).
+
 ## Developer info
 
 Pull requests are happily accepted, but before making one make sure

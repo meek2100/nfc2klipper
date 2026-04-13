@@ -1,0 +1,24 @@
+[
+    {
+        "id": 1,
+        "archived": false,
+        "spool_weight": 200.0,
+        "filament": {
+            "id": 10,
+            "name": "Test PLA Black",
+            "material": "PLA",
+            "vendor": {"name": "TestVendor"}
+        }
+    },
+    {
+        "id": 2,
+        "archived": false,
+        "spool_weight": 250.0,
+        "filament": {
+            "id": 11,
+            "name": "Test ABS Red",
+            "material": "ABS",
+            "vendor": {"name": "AnotherVendor"}
+        }
+    }
+]

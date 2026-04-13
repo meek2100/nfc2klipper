@@ -1,0 +1,14 @@
+{
+    "printer.gcode.script": {
+        "result": "ok"
+    },
+    "printer.objects.query": {
+        "result": {
+            "status": {
+                "print_stats": {
+                    "state": "standby"
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,65 @@
+# SPDX-FileCopyrightText: 2026 Sebastian Andersson <sebastian@bittr.nu>
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "nfc2klipper"
+version = "0.1.0"
+description = "NFC tag reader/writer for Spoolman and Klipper"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "GPL-3.0-or-later"
+authors = [
+    {name = "Sebastian Andersson", email = "sebastian@bittr.nu"}
+]
+keywords = ["spoolman", "3d-printing", "klipper", "nfc"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: End Users/Desktop",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Printing",
+]
+dependencies = [
+    "flask==3.0.3",
+    "toml==0.10.2",
+    "nfcpy==1.0.4",
+    "npyscreen==5.0.2",
+    "requests==2.32.5",
+    "urllib3>=2.6.0",
+    "gunicorn==23.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.23.0",
+    "pytest-mock>=3.12.0",
+    "pylint>=4.0.0",
+    "black>=25.9.0",
+    "ruff>=0.1.0",
+    "types-toml>=0.10.8",
+    "types-requests>=2.32.0",
+]
+
+[project.scripts]
+nfc2klipper = "nfc2klipper.orchestrator:main"
+nfc2klipper-write = "nfc2klipper.write_tags:main"
+
+[tool.setuptools]
+packages = ["nfc2klipper", "nfc2klipper.lib"]
+include-package-data = true
+
+[tool.setuptools.package-data]
+"nfc2klipper" = ["templates/*", "*.cfg"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v"

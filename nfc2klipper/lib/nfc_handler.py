@@ -12,7 +12,7 @@ import ndef
 import nfc
 from nfc.clf import RemoteTarget
 
-from lib.nfc_parsers import SPOOL, FILAMENT
+from .nfc_parsers import SPOOL, FILAMENT
 
 logger: logging.Logger = logging.getLogger(__name__)
 
