@@ -12,7 +12,7 @@ PYLINT:=$(VENV)/bin/pylint
 REUSE:=$(VENV)/bin/reuse
 MYPY:=$(VENV)/bin/mypy
 
-SRC=$(wildcard *.py lib/*.py)
+SRC=$(wildcard src/**/*.py)
 
 help:
 	@echo Available targets:
@@ -22,10 +22,10 @@ help:
 	@echo run-mock - run nfc2klipper.py with mock objects for testing.
 	@echo clean - remove venv directory.
 
-$(VENV_TIMESTAMP): requirements.txt
+$(VENV_TIMESTAMP): pyproject.toml
 	@echo Building $(VENV)
 	python3 -m venv $(VENV)
-	$(PIP) install -r $<
+	$(PIP) install .
 	touch $@
 
 $(BLACK): $(VENV_TIMESTAMP)
@@ -53,8 +53,8 @@ reuse: $(REUSE)
 	$(REUSE) lint
 
 run-mock:
-	@echo "Starting nfc2klipper.py with mock objects..."
-	NFC2KLIPPER_USE_MOCKS=1 python3 nfc2klipper.py
+	@echo "Starting nfc2klipper as a module with mock objects..."
+	NFC2KLIPPER_USE_MOCKS=1 PYTHONPATH=src python3 -m nfc2klipper.nfc2klipper
 
 clean:
 	@rm -rf $(VENV) 2>/dev/null

@@ -1,0 +1,101 @@
+<!doctype html>
+<!--
+SPDX-FileCopyrightText: 2024 Sebastian Andersson <sebastian@bittr.nu>
+SPDX-License-Identifier: GPL-3.0-or-later
+-->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+
+  <title> NFC2Klipper </title>
+  <!--
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous"></script>
+  -->
+  <script>
+    function x(spool, filament) {
+          const status = document.getElementById("status");
+          status.className = "alert alert-info";
+          status.textContent = "Writing to NFC...";
+          fetch("/w/" + spool + "/" + filament)
+            .then((result) => {
+                  if (!result.ok) {
+                        result.text().then((text) => {
+                              const status = document.getElementById("status");
+                              status.textContent = "Failed to write to NFC tag: " + text;
+                              status.className = "alert alert-danger";
+                            });
+                        throw new Error("Could not write tag");
+                      }
+                  return result.text();
+                })
+            .then((text) => {
+                  const status = document.getElementById("status");
+                  status.textContent = "Wrote to NFC tag";
+                  status.className = "alert alert-success";
+                })
+            .catch((error) => {
+                  console.error("Failed to request NFC writing:", error);
+                });
+          return false;
+        }
+
+    function snfc(spool) {
+          const status = document.getElementById("status");
+          status.className = "alert alert-info";
+          status.textContent = "Sending nfc id to Spoolman...";
+          fetch("/set_nfc_id/" + spool)
+            .then((result) => {
+                  if (!result.ok) {
+                        result.text().then((text) => {
+                              const status = document.getElementById("status");
+                              status.textContent = "Failed to send NFC tag id to Spoolman: " + text;
+                              status.className = "alert alert-danger";
+                            });
+                        throw new Error("Could not send nfc_id to Spoolman");
+                      }
+                  return result.text();
+                })
+            .then((text) => {
+                  const status = document.getElementById("status");
+                  status.textContent = "Wrote NFC tag id to Spoolman";
+                  status.className = "alert alert-success";
+                })
+            .catch((error) => {
+                  console.error("Failed to request NFC tag_id sending:", error);
+                });
+          return false;
+        }
+  </script>
+</head>
+<body>
+<div class="container">
+<h1>Write NFC Tag</h1>
+
+<div id="status" role="alert">&nbsp;</div>
+
+<ul>
+  {% for spool in spools|reverse %}
+  <li>
+    <button type="button"
+            class="btn btn-outline-primary btn-sm"
+	    onclick="snfc({{spool['id']}})"
+            >Set in Spoolman</button>
+    <button type="button"
+            class="btn btn-outline-primary btn-sm"
+            onclick="x({{spool['id']}}, {{spool['filament']['id']}})"
+            >Write</button>
+    {{spool['id']}}: {{spool['filament']['vendor']['name']}} - {{spool['filament']['material']}} - {{spool['filament']['name']}}
+    {% if spool['extra'] and nfc_id and spool['extra']['nfc_id'] == '"' + nfc_id + '"' %}
+	    (current spool from NFC-ID)
+    {% endif %}
+    {% if spool['id'] == spool_id %}
+	    (current spool-id)
+    {% endif %}
+  </li>
+  {% endfor %}
+</ul>
+</div>
+</body>
+</html>
