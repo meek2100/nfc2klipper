@@ -46,14 +46,14 @@ something similar.
 In the cloned repository's dir run:
 ```sh
 python3 -m venv venv
-venv/bin/pip3 install -r requirements.txt
+venv/bin/pip3 install .
 ```
 
 Copy and update `nfc2klipper.cfg` to `~/.config/nfc2klipper/nfc2klipper.cfg`.
 
 You can specify a custom configuration directory using the `-c` or `--config-dir` command-line option:
 ```sh
-venv/bin/python3 nfc2klipper_backend.py -c /path/to/config/directory
+venv/bin/nfc2klipper -c /path/to/config/directory
 ```
 
 ## Preparing Spoolman
@@ -156,14 +156,14 @@ The second method allows nfc2klipper to be used with
 tags of different formats.
 
 
-## Runing the backend
+## Running nfc2klipper
 
-Run `nfc2klipper_backend.py`.
+Run the unified application:
+```sh
+venv/bin/nfc2klipper
+```
 
-See further down for running it as a systemd service.
-
-`nfc2klipper.py` is only there for backwards compability and making
-development easier.
+The application now runs both the NFC scanning engine and the Web API in a single high-performance `asyncio` process.
 
 ### Using tag's id
 
@@ -187,14 +187,9 @@ klipper via the [Moonraker](https://github.com/Arksine/moonraker) API.
 
 #### Write tags with the web server
 
-`nfc2klipper_api.py` can be run as a (WSGI) web server with for example
-[Gunicorn](https://gunicorn.org). It will then serve a web page for
-writing to the tags or setting the spool's id in Spoolman, like FilaMan does.
+The built-in web server is now part of the main `nfc2klipper` process. It serves a web page for writing to the tags or setting the spool's id in Spoolman.
 
-Please note that nfc2klipper does not implement any authentication, so
-only run this on secure networks, or add reverse proxy (like nginx)
-with some authentication. Follow the link above for Gunicorn's
-documentation.
+Please note that nfc2klipper does not implement any authentication, so only run this on secure networks, or add a reverse proxy (like nginx) with authentication.
 
 To run it with **little security**;
 ```sh
@@ -236,30 +231,20 @@ Use the `write_tag` script to stop the nfc2klipper service, run the
 
 ## Run automatically with systemd
 
-Copy `nfc2klipper_backend.service` to `/etc/systemd/system`, then run:
+Copy `nfc2klipper.service` to `/etc/systemd/system`, then run:
 
 ```sh
-sudo systemctl start nfc2klipper_backend
-sudo systemctl enable nfc2klipper_backend
+sudo systemctl start nfc2klipper
+sudo systemctl enable nfc2klipper
 ```
 
 To see its status, run:
 ```sh
-sudo systemctl status nfc2klipper_backend
+sudo systemctl status nfc2klipper
 ```
 
-To run the web server, copy `nfc2klipper_api.service` to
-`/etc/systemd/system`, then run:
-
-```sh
-sudo systemctl start nfc2klipper_api
-sudo systemctl enable nfc2klipper_api
-```
-
-To see its status, run:
-```sh
-sudo systemctl status nfc2klipper_api
-```
+> [!NOTE]
+> The unified service replaces the old separate `backend` and `api` services. Update your systemd unit to point to the `venv/bin/nfc2klipper` entry point.
 
 ## Automatic upgrades with moonraker
 
