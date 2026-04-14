@@ -31,11 +31,14 @@ from .spoolman_common.api import SpoolmanClient
 PROGNAME = "nfc2klipper"
 logger = logging.getLogger(PROGNAME)
 
+# Global objects
+ARGS = None
+
 class Nfc2KlipperApp:
     """Consolidated application runner for NFC hardware and Web API."""
 
     def __init__(self, config_dir: Optional[str] = None):
-        config_dir = config_dir or Nfc2KlipperConfig.CFG_DIR
+        config_dir = config_dir or (ARGS.config_dir if ARGS else None) or Nfc2KlipperConfig.CFG_DIR
         self.config = Nfc2KlipperConfig.get_config(config_dir)
         
         if not self.config:
@@ -180,15 +183,37 @@ class Nfc2KlipperApp:
         if hasattr(self, 'stop_event'):
             self.stop_event.set()
 
+def get_parser() -> argparse.ArgumentParser:
+    """Initialize the argument parser."""
+    parser = argparse.ArgumentParser(
+        prog=PROGNAME,
+        description="Unified NFC2Klipper agent for hardware and Web API.",
+    )
+    parser.add_argument(
+        "-c", "--config-dir",
+        metavar="DIR",
+        help="The folder where your configuration files are stored.",
+    )
+    parser.add_argument(
+        "-v", "--verbose",
+        action="store_true",
+        help="Show detailed progress information.",
+    )
+    return parser
+
 def main():
     """CLI Entry point."""
+    global ARGS
     Nfc2KlipperConfig.configure_logging()
     
-    parser = argparse.ArgumentParser(description="Unified NFC2Klipper agent")
-    parser.add_argument("-c", "--config-dir", help="Config directory")
-    args = parser.parse_args()
+    parser = get_parser()
+    ARGS = parser.parse_args()
 
-    app = Nfc2KlipperApp(args.config_dir)
+    # Set log level based on verbose flag
+    if ARGS.verbose:
+        logging.getLogger().setLevel(logging.DEBUG)
+
+    app = Nfc2KlipperApp(ARGS.config_dir)
     
     try:
         asyncio.run(app.run())

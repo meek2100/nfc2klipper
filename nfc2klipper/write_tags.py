@@ -22,6 +22,7 @@ SPOOL = "SPOOL"
 FILAMENT = "FILAMENT"
 NDEF_TEXT_TYPE = "urn:nfc:wkt:T"
 
+
 def record_to_text(record):
     """Translate a json spool object to a readable string"""
     return (
@@ -30,6 +31,7 @@ def record_to_text(record):
         f"{record['filament']['name']}"
     )
 
+
 class PostList(npyscreen.MultiLineAction):
     """A wrapper for MultiLineAction to call the write_tag function"""
 
@@ -37,6 +39,7 @@ class PostList(npyscreen.MultiLineAction):
         """Called when a line is chosen"""
         record = self.parent.records[self.cursor_line]
         self.parent.parentApp.write_tag(record)
+
 
 class PostSelectForm(npyscreen.FormBaseNew):
     """Simple form for showing the spools"""
@@ -68,6 +71,7 @@ class PostSelectForm(npyscreen.FormBaseNew):
     def exit_app(self):
         """Called when exit is choosen"""
         self.parentApp.switchForm(None)
+
 
 class TagWritingApp(npyscreen.NPSAppManaged):
     """The npyscreen's main class for the application"""
@@ -102,7 +106,9 @@ class TagWritingApp(npyscreen.NPSAppManaged):
         try:
             clf = nfc.ContactlessFrontend(self.nfc_device)
             clf.connect(
-                rdwr={"on-connect": lambda tag: self.on_nfc_connect(tag, spool, filament)}
+                rdwr={
+                    "on-connect": lambda tag: self.on_nfc_connect(tag, spool, filament)
+                }
             )
             clf.close()
         except Exception as e:
@@ -120,21 +126,24 @@ class TagWritingApp(npyscreen.NPSAppManaged):
         )
         form.set_editing(form.posts)
 
+
 def main():
     parser = argparse.ArgumentParser(
         description="Fetches spools from Spoolman and allows writing info about them to RFID tags.",
     )
     parser.add_argument("--version", action="version", version="%(prog)s 0.0.1")
     parser.add_argument(
-        "-d", "--nfc-device",
+        "-d",
+        "--nfc-device",
         metavar="device",
         default="ttyAMA0",
-        help="Which NFC reader to use"
+        help="Which NFC reader to use",
     )
     parser.add_argument(
-        "-u", "--url",
+        "-u",
+        "--url",
         metavar="URL",
-        default="http://mainsailos.local:7912",
+        default="http://mainsailos.local:8000",
         help="URL for the Spoolman installation",
     )
     args = parser.parse_args()
@@ -145,6 +154,7 @@ def main():
 
     app = TagWritingApp(nfc_device=nfc_device, spoolman_url=spoolman_url)
     app.run()
+
 
 if __name__ == "__main__":
     main()

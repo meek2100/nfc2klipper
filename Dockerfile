@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2026 Sebastian Andersson <sebastian@bittr.nu>
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-FROM python:3.10-slim
+FROM python:3.14-slim
 
 # Install system dependencies for nfcpy and hardware access
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -27,7 +27,7 @@ COPY . .
 RUN pip install --no-cache-dir .
 
 # Apply PN532 patch to nfcpy
-RUN find /usr/local/lib/python3.10/site-packages/nfc/clf/ -name "pn532.py" -exec patch {} /app/pn532.py.patch \;
+RUN find /usr/local/lib/python3.14/site-packages/nfc/clf/ -name "pn532.py" -exec patch {} /app/pn532.py.patch \;
 
 # Pre-seed the configuration directory
 RUN mkdir -p /home/nfc2klipper/.config/nfc2klipper && \

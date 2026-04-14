@@ -39,7 +39,7 @@ parser.add_argument(
     "-u",
     "--url",
     metavar="URL",
-    default="http://mainsailos.local:7912",
+    default="http://mainsailos.local:8000",
     help="URL for the Spoolman installation",
 )
 
