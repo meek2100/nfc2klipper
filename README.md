@@ -39,7 +39,7 @@ Automatically sets the loaded spool &amp; filament in klipper by using NFC/RFID 
 
 ## Prepare for running nfc2klipper
 
-Install python >= 3.9.
+Install python >= 3.10 (3.14 recommended for performance).
 On some distributions you may need to install "python3-venv" or
 something similar.
 
@@ -63,7 +63,7 @@ it can also use tags in other formats, like tags for
 Filaman, OpenTag3D and probably many others.
 
 For it to be able to use other tag formats, the spool needs to have
-an extra `nfc_id` field (just like FilaMan). Add it in Spoolman under
+an extra `nfc_id` field (just like FilaMan). Add it in Spoolman (default port 8000) under
 settings -> extra fields -> spool.
 
 
@@ -299,7 +299,7 @@ You can also add extra fields in Spoolman for saving the data from the OpenTag3D
 
 *nfc2klipper* can be integrated directly into [spoolman2slicer](https://github.com/bofh69/spoolman2slicer) as a plugin. This allows you to run both tools in a single process.
 
-To enable it, run `spoolman2slicer` with the `--with-n2k` flag or set the `S2S_WITH_N2K=true` environment variable. The host will automatically handle the lifecycle and configuration of this agent.
+To enable it, run `spoolman2slicer` with the `--with-n2k` flag or set the `SM2S_WITH_N2K=true` environment variable. The host will automatically handle the lifecycle and configuration of this agent.
 
 For more details on hardware setup requirements when running as a plugin, see [README-PLUGIN.md](README-PLUGIN.md).
 

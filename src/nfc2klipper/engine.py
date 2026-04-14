@@ -5,6 +5,7 @@
 """Orchestration logic for syncing NFC tag reads to Spoolman and Klipper."""
 
 import logging
+import threading
 from typing import Any, Dict, List, Optional, Tuple
 from .api import KlipperClient
 from .spoolman_common.api import SpoolmanClient
@@ -31,6 +32,7 @@ class NfcSyncEngine:
         self.parsers = parsers
         self.always_send = always_send
         self.clear_on_missing = clear_on_missing
+        self._lock = threading.Lock()
 
         # State tracking
         self.last_nfc_id: Optional[str] = None
@@ -40,7 +42,8 @@ class NfcSyncEngine:
     def on_tag_present(self, ndef_data: Any, nfc_id: str):
         """Callback for when a physical tag is detected."""
         logger.info(f"NFC Tag Detected: {nfc_id}")
-        self.last_nfc_id = nfc_id
+        with self._lock:
+            self.last_nfc_id = nfc_id
 
         # Try all parsers in sequence
         spool_id_str = None
@@ -79,8 +82,9 @@ class NfcSyncEngine:
                 else:
                     self.klipper.clear_spool_and_filament()
                 
-                self.last_spool_id = spool_id
-                self.last_filament_id = filament_id
+                with self._lock:
+                    self.last_spool_id = spool_id
+                    self.last_filament_id = filament_id
             except Exception as e:
                 logger.error(f"Failed to update Klipper: {e}")
         else:
@@ -88,11 +92,12 @@ class NfcSyncEngine:
 
     def get_current_state(self) -> Dict[str, Any]:
         """Return the current sync state for API consumption."""
-        return {
-            "nfc_id": self.last_nfc_id,
-            "spool_id": self.last_spool_id,
-            "filament_id": self.last_filament_id
-        }
+        with self._lock:
+            return {
+                "nfc_id": self.last_nfc_id,
+                "spool_id": self.last_spool_id,
+                "filament_id": self.last_filament_id
+            }
 
     def write_tag(self, spool_id: int, filament_id: int, handler: Any) -> bool:
         """Command the hardware handler to write data to the next available tag."""

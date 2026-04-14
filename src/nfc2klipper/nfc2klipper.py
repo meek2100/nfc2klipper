@@ -13,7 +13,7 @@ import os
 import signal
 import sys
 import threading
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Union
 from pathlib import Path
 
 from aiohttp import web
@@ -37,9 +37,12 @@ ARGS = None
 class Nfc2KlipperApp:
     """Consolidated application runner for NFC hardware and Web API."""
 
-    def __init__(self, config_dir: Optional[str] = None):
-        config_dir = config_dir or (ARGS.config_dir if ARGS else None) or Nfc2KlipperConfig.CFG_DIR
-        self.config = Nfc2KlipperConfig.get_config(config_dir)
+    def __init__(self, config: Optional[Union[str, Dict[str, Any]]] = None):
+        if isinstance(config, dict):
+            self.config = config
+        else:
+            config_dir = config or (ARGS.config_dir if ARGS else None) or Nfc2KlipperConfig.CFG_DIR
+            self.config = Nfc2KlipperConfig.get_config(config_dir)
         
         if not self.config:
             logger.error(f"Configuration file not found in {config_dir}")
