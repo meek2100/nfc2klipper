@@ -6,6 +6,7 @@
 
 """Unified entry point for the nfc2klipper agent and web API."""
 
+import argparse
 import asyncio
 import logging
 import os
@@ -98,7 +99,10 @@ class Nfc2KlipperApp:
     async def handle_index(self, request):
         """Render the main management dashboard."""
         try:
-            spools = self.spoolman.get_active_spools()
+            # Spoolman calls are blocking, run in executor
+            spools = await asyncio.get_event_loop().run_in_executor(
+                None, self.spoolman.get_active_spools
+            )
             state = self.engine.get_current_state()
             
             template = self.jinja_env.get_template("index.html")
@@ -142,6 +146,8 @@ class Nfc2KlipperApp:
 
     async def run(self):
         """Start the hardware thread and the web server."""
+        self.stop_event = asyncio.Event()
+
         # 1. Start hardware polling in a separate thread
         hw_thread = threading.Thread(target=self.nfc_handler.run, daemon=True)
         hw_thread.start()
@@ -149,6 +155,7 @@ class Nfc2KlipperApp:
 
         # 2. Start Web Server
         web_config = self.config.get("webserver", {})
+        runner = None
         if not web_config.get("disable_web_server", False):
             host = web_config.get("web_address", "0.0.0.0")
             port = web_config.get("web_port", 5001)
@@ -159,9 +166,19 @@ class Nfc2KlipperApp:
             await site.start()
             logger.info(f"Web API started at http://{host}:{port}")
 
-        # Keep alive
-        while True:
-            await asyncio.sleep(3600)
+        # Keep alive until stopped
+        try:
+            await self.stop_event.wait()
+        finally:
+            if runner:
+                logger.info("Shutting down web server...")
+                await runner.cleanup()
+            logger.info("Cleanup complete.")
+
+    def stop(self):
+        """Trigger application shutdown."""
+        if hasattr(self, 'stop_event'):
+            self.stop_event.set()
 
 def main():
     """CLI Entry point."""
@@ -182,5 +199,4 @@ def main():
         sys.exit(1)
 
 if __name__ == "__main__":
-    import argparse
     main()
